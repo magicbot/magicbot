@@ -21,7 +21,7 @@ const predictions = [
 
 client.on('guildCreate', guild => {
     let logChannel = client.channels.get("382878132526645249")
-    logChannel.send({embed: {
+    let embed = {
         color: 0x01b723,
         /* author: {
           name: client.user.username,
@@ -45,13 +45,13 @@ client.on('guildCreate', guild => {
           icon_url: msg.author.avatarURL,
           text: `Command issued by ${msg.author.tag}`
         } */
-      }
-    });
+      }    
+    return logChannel.send({embed});
 });
 
 client.on('guildDelete', guild => {
     let logChannel = client.channels.get("382878132526645249")
-    logChannel.send({embed: {
+    let embed = {
         color: 0xa01800,
         /* author: {
           name: client.user.username,
@@ -75,8 +75,8 @@ client.on('guildDelete', guild => {
           icon_url: msg.author.avatarURL,
           text: `Command issued by ${msg.author.tag}`
         } */
-      }
-    });
+      }    
+    return logChannel.send({embed});
 });
 
 client.on('message', msg => {
@@ -121,7 +121,7 @@ client.on('message', msg => {
     }
 
     if (msg.content.startsWith(prefix + 'invite')) {
-        msg.channel.send({embed: {
+        let embed = {
             color: 0x00cce8,
             /* author: {
               name: client.user.username,
@@ -144,8 +144,8 @@ client.on('message', msg => {
               icon_url: msg.author.avatarURL,
               text: `Command issued by ${msg.author.tag}`
             }
-          }
-        });
+          }        
+        return msg.channel.send({embed})
     }
 
     if (msg.content.startsWith(prefix + 'say')) {
@@ -154,8 +154,7 @@ client.on('message', msg => {
         if (!args) {
             return msg.channel.send("Whoops! No args found.")
         }
-        msg.delete();
-        msg.channel.send(`${args}`)
+        msg.delete().then(msg => msg.channel.send(`${args}`));
     }   
         
     if (msg.content.startsWith(prefix + 'reverse')) {
@@ -163,12 +162,12 @@ client.on('message', msg => {
         if (!args) {
             return msg.channel.send("You've borked!\nPlease provide arguments next time.")
         }
-        msg.channel.send(`↩️ ${args.split('').reverse().join('')}`)
+        return msg.channel.send(`↩️ ${args.split('').reverse().join('')}`)
     }
 
     if (msg.content.startsWith(prefix + 'info')) {
         const duration = moment.duration(client.uptime).format(" D [days], H [hrs], m [mins], s [secs]");
-        msg.channel.send({embed: {
+        let embed = {
             color: 0x00cce8,
             /* author: {
               name: client.user.username,
@@ -196,12 +195,13 @@ client.on('message', msg => {
               icon_url: msg.author.avatarURL,
               text: `Command issued by ${msg.author.tag}`
             }
-          }
-        });
+          }        
+        return msg.channel.send({embed});
+
     }
 
     if (msg.content.startsWith(prefix + 'guilds')) {
-        msg.channel.send(`I'm currently in ${client.guilds.size} guilds.\n\n${client.guilds.map(g => `${g.name} - ${g.id} - ${g.memberCount} members`).join('\n')}`)
+        return msg.channel.send(`I'm currently in ${client.guilds.size} guilds.\n\n${client.guilds.map(g => `${g.name} - ${g.id} - ${g.memberCount} members`).join('\n')}`)
     }
 
     if (msg.content.startsWith(prefix + 'thot')) {
@@ -209,7 +209,7 @@ client.on('message', msg => {
         if (!args) {
             return msg.channel.send("where are your arguments, dude?")
         }
-        msg.channel.send(`**${args}** is a thot!`)
+        return msg.channel.send(`**${args}** is a thot!`)
     }
 
     if (msg.content.startsWith(prefix + 'clapify')) {
@@ -217,7 +217,7 @@ client.on('message', msg => {
         if (!args) {
             return msg.channel.send("You've borked! Args required!") // Error handling isn't working (here) for some reason. Will fix if I get a solution.
         }
-        msg.channel.send("👏" + args.join("👏") + "👏");
+        return msg.channel.send("👏" + args.join("👏") + "👏");
     }
 
     if (msg.isMentioned(client.user)) {
@@ -229,7 +229,7 @@ client.on('message', msg => {
         if (!args) {
             return msg.channel.send("woah, no args?")
         }
-        msg.channel.send(`oshit, **${args}** got BANNEd by **${msg.author.username}**`)
+        return msg.channel.send(`oshit, **${args}** got BANNEd by **${msg.author.username}**`)
     }
 
     if (msg.content.startsWith(prefix + 'serverinfo')) {
@@ -247,7 +247,7 @@ client.on('message', msg => {
         .addField(`Online Users`, `${msg.guild.members.filter(mem => mem.presence.status === "online").size}`)
         .addField(`Roles`, `${msg.guild.roles.size}`)
 
-        msg.channel.send({embed})
+        return msg.channel.send({embed})
     }
 
     if (msg.content.startsWith(prefix + 'userinfo')) {
@@ -275,12 +275,12 @@ client.on('message', msg => {
             return msg.reply('Please provide something for me to look up on the Urban Dictionary.');
         }
         urban(args).then((r) => {
-            msg.channel.send(`**Definition for ${r.word}**` + "\n" + r.definition).catch(console.error);
+            return msg.channel.send(`**Definition for ${r.word}**` + "\n" + r.definition).catch(console.error);
          });
     }
 
     if (msg.content.startsWith(prefix + 'help')) {
-        msg.channel.send({embed: {
+        let embed = {
             color: 0x00cce8,
             /* author: {
               name: client.user.username,
@@ -327,8 +327,8 @@ client.on('message', msg => {
               icon_url: msg.author.avatarURL,
               text: `Help requested by ${msg.author.tag}`
             }
-          }
-        });
+          };
+          return msg.channel.send({embed});
     }
 
     if (msg.content.startsWith(prefix + 'eval')) {
@@ -356,7 +356,7 @@ client.on('message', msg => {
             .setColor(0xd82e00)
             .setDescription(`:inbox_tray: Input: \n \`\`\`${evalstuff}\`\`\` \n :outbox_tray: Output: \n  \`\`\`${clean(err)}\`\`\``)
       
-            msg.channel.send({embed});
+            return msg.channel.send({embed});
           }
         }
 });
